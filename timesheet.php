@@ -30,7 +30,7 @@ class App {
 
         $this->loadData();
 
-        print "Welcome to the time tracking application!";
+        print "\nWelcome to the time tracking application!";
         $validInput = false;
         do {
             print "\nPlease identify with your first and last name: ";
@@ -42,7 +42,9 @@ class App {
                 $validInput = true;
             }
         } while (!$validInput);
-        print "\nWelcome, {$this->currentPerson->getFullName()}";
+        print "\nWelcome, {$this->currentPerson->getFullName()}!";
+        var_dump($this->persons);
+        var_dump($this->timestamps);
     }
 
     private function loadData() {
@@ -52,8 +54,14 @@ class App {
         } else {
             $data = json_decode($json, true);
             if (!is_null($data) && isset($data['timestamps']) && isset($data['persons'])) {
+                foreach ($data['persons'] as $personData) {
+                    $person = Person::fromArray($personData);
+                    $this->persons[$person->getUuid()] = $person;
+                }
                 foreach ($data['timestamps'] as $timestampData) {
-
+                    $timestamp = Timestamp::fromArray($timestampData);
+                    $timestamp->setPerson($this->persons[$timestampData['person']]);
+                    $this->timestamps[] = $timestamp;
                 }
             } else {
                 $this->regenerationSequence();
@@ -77,4 +85,4 @@ class App {
 
 }
 
-new App();
+$app = new App();

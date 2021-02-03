@@ -4,17 +4,36 @@ namespace Zeiterfassung;
 
 class Person {
 
-    private $firstname;
-    private $lastname;
+    private string $firstname;
+    private string $lastname;
+    private string $uuid;
 
     /**
      * Person constructor.
      * @param $firstname
      * @param $lastname
+     * @param null $uuid
      */
-    public function __construct($firstname, $lastname) {
+    public function __construct($firstname, $lastname, $uuid = null) {
         $this->firstname = $firstname;
         $this->lastname = $lastname;
+        if ($uuid == null) {
+            $this->uuid = uniqid();
+        } else {
+            $this->uuid = $uuid;
+        }
+    }
+
+    public static function fromArray($array) : Person {
+        return new Person($array['firstname'], $array['lastname'], $array['uuid']);
+    }
+
+    public function toArray() : array {
+        return array(
+            'firstname' => $this->firstname,
+            'lastname' => $this->lastname,
+            'uuid' => $this->uuid
+        );
     }
 
     /**
@@ -36,6 +55,13 @@ class Person {
      */
     public function getFullName() : string {
         return $this->firstname . " " . $this->lastname;
+    }
+
+    /**
+     * @return string
+     */
+    public function getUuid(): string {
+        return $this->uuid;
     }
 
 }
