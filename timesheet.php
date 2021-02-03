@@ -13,6 +13,7 @@ class App {
 
     public array $persons;
     public array $timestamps;
+    private array $ownTimestamps;
 
     private static array $DEFAULT_DATA_STRUCTURE = array(
         "persons" => array(),
@@ -27,6 +28,7 @@ class App {
     public function __construct() {
         $this->persons = array();
         $this->timestamps = array();
+        $this->ownTimestamps = array();
 
         $this->loadData();
 
@@ -37,14 +39,37 @@ class App {
             $input = readline();
             $splitted = explode(" ", $input);
             if (sizeof($splitted) == 2) {
-                $this->currentPerson = new Person($splitted[0], $splitted[1]);
-                $this->persons[] = $this->currentPerson;
+                $isNew = true;
+                if ($this->persons != false) {
+                    foreach ($this->persons as $person) {
+                        if ($person->getFirstName() == $splitted[0]) {
+                            if ($person->getLastName() == $splitted[1]) {
+                                $isNew = false;
+                                $this->currentPerson = $person;
+                                break;
+                            }
+                        }
+                    }
+                } else
+                    $isNew = true;
+
+                if ($isNew) {
+                    $this->currentPerson = new Person($splitted[0], $splitted[1]);
+                    $this->addPersonToData($this->currentPerson);
+                    $this->persons[] = $this->currentPerson;
+                }
                 $validInput = true;
             }
         } while (!$validInput);
+        $this->loadOwnTimestamps();
+        $openTimestamp = $this->getOpenTimestamp();
         print "\nWelcome, {$this->currentPerson->getFullName()}!";
-        var_dump($this->persons);
-        var_dump($this->timestamps);
+        if ($openTimestamp == null) {
+            print "\nCurrently there's no uncompleted timestamp. Create one!";
+        } else {
+            print "\nYour last timestamp:\n{$openTimestamp->getStart()->format('d.m.Y G:i')}   {$openTimestamp->getProject()}";
+        }
+
     }
 
     private function loadData() {
@@ -80,6 +105,31 @@ class App {
         }
         print "\nTry repairing data.json by yourself, then restart. Exiting now.";
         exit();
+    }
+
+    private function addPersonToData(Person $person) {
+        $json = file_get_contents("data.json");
+        $data = json_decode($json, true);
+        $data['persons'][$person->getUuid()] = $person->toArray();
+        $json = json_encode($data);
+        file_put_contents("data.json", $json);
+    }
+
+    private function getOpenTimestamp() : Timestamp|null {
+        foreach ($this->ownTimestamps as $timestamp) {
+            if ($timestamp->getEnd() == null) {
+                return $timestamp;
+            }
+        }
+        return null;
+    }
+
+    private function loadOwnTimestamps() {
+        foreach ($this->timestamps as $timestamp) {
+            if ($timestamp->getPerson() == $this->currentPerson) {
+                $this->ownTimestamps[] = $timestamp;
+            }
+        }
     }
 
 

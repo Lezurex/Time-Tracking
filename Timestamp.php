@@ -75,6 +75,11 @@ class Timestamp {
         $this->person = $person;
     }
 
-
+    /**
+     * @return string
+     */
+    public function getProject(): string {
+        return $this->project;
+    }
 
 }
