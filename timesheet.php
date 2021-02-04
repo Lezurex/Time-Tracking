@@ -36,6 +36,8 @@ class App {
         $this->timestamps = array();
         $this->ownTimestamps = array();
 
+        date_default_timezone_set("Europe/Zurich");
+
         $this->loadData();
 
         print "\nWelcome to the time tracking application!";
@@ -91,9 +93,9 @@ class App {
     /**
      * Execute an action associated with an id
      * @param $id
-     * @return bool
+     * @return bool|null
      */
-    private function doAction($id) {
+    private function doAction($id): ?bool {
         if (!is_numeric($id)) {
             print "\nThis selection is not valid!";
             return false;
@@ -184,6 +186,7 @@ class App {
                 print "\nThis selection is not valid!";
                 return false;
         }
+        return true;
     }
 
     /**
