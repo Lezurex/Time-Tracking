@@ -21,7 +21,8 @@ class App {
     );
     private const MENU_ITEMS = array(
         "Make stamp",
-        "See current project"
+        "See current project",
+        "See summary of timestamps"
     );
 
 
@@ -92,7 +93,7 @@ class App {
      * @param $id
      * @return bool
      */
-    private function doAction($id): bool {
+    private function doAction($id) {
         if (!is_numeric($id)) {
             print "\nThis selection is not valid!";
             return false;
@@ -157,6 +158,27 @@ class App {
                 } else {
                     print "\nYour last timestamp was:\n{$timestamp->getStart()->format('d.m.Y G:i')}   {$timestamp->getProject()}";
                 }
+                break;
+            case 3:
+                $validInput = false;
+                do {
+                    print "\n";
+                    $input = readline("How many timestamps would you like to see? ");
+                    if (is_numeric($input)) {
+                        $validInput = true;
+                        $timestamps = array_reverse($this->ownTimestamps);
+                        $count = 0;
+                        foreach ($timestamps as $timestamp) {
+                            if ($count < $input) {
+                                $end = $timestamp->getEnd() != null ? $timestamp->getEnd()->format('d.m.Y H:i') : '-               ';
+                                print "\n{$timestamp->getStart()->format('d.m.Y H:i')} until $end   {$timestamp->getProject()}";
+                                $count++;
+                            } else {
+                                break;
+                            }
+                        }
+                    }
+                } while (!$validInput);
                 break;
             default:
                 print "\nThis selection is not valid!";
