@@ -69,6 +69,7 @@ class App {
                 $validInput = true;
             }
         } while (!$validInput);
+        $this->clear();
         $this->loadOwnTimestamps();
         $openTimestamp = $this->getOpenTimestamp();
         print "\nWelcome, {$this->currentPerson->getFullName()}!";
@@ -96,6 +97,7 @@ class App {
      * @return bool|null
      */
     private function doAction($id): ?bool {
+        $this->clear();
         if (!is_numeric($id)) {
             print "\nThis selection is not valid!";
             return false;
@@ -265,6 +267,16 @@ class App {
                 $this->ownTimestamps[] = $timestamp;
             }
         }
+    }
+
+    private function clear() {
+        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+            $clear = "cls";
+        } else {
+            $clear = "clear";
+        }
+        popen($clear, "w");
+
     }
 
 
