@@ -87,7 +87,12 @@ class App {
         } while ($exit == false);
     }
 
-    private function doAction($id) {
+    /**
+     * Execute an action associated with an id
+     * @param $id
+     * @return bool
+     */
+    private function doAction($id): bool {
         if (!is_numeric($id)) {
             print "\nThis selection is not valid!";
             return false;
@@ -159,6 +164,9 @@ class App {
         }
     }
 
+    /**
+     * Load the data from the data.json file
+     */
     private function loadData() {
         $json = null;
         if (($json = @file_get_contents("data.json")) == false) {
@@ -181,6 +189,9 @@ class App {
         }
     }
 
+    /**
+     * Start the data file regeneration sequence
+     */
     private function regenerationSequence() {
         print "The data file is corrupt or not readable. Do you want to regenerate it? This will result in data loss! (y/n) ";
         $input = readline();
@@ -195,6 +206,10 @@ class App {
         exit();
     }
 
+    /**
+     * Add a new person to the data file
+     * @param Person $person
+     */
     private function addPersonToData(Person $person) {
         $json = file_get_contents("data.json");
         $data = json_decode($json, true);
@@ -203,7 +218,11 @@ class App {
         file_put_contents("data.json", $json);
     }
 
-    private function getOpenTimestamp() : Timestamp|null {
+    /**
+     * Gets an opened timestamp, if existent
+     * @return Timestamp|null
+     */
+    private function getOpenTimestamp(): Timestamp|null {
         foreach ($this->ownTimestamps as $timestamp) {
             if ($timestamp->getEnd() == null) {
                 return $timestamp;
@@ -212,6 +231,9 @@ class App {
         return null;
     }
 
+    /**
+     * Loads timestamps only for the user
+     */
     private function loadOwnTimestamps() {
         foreach ($this->timestamps as $timestamp) {
             if ($timestamp->getPerson() == $this->currentPerson) {

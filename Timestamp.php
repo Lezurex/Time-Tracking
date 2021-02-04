@@ -26,7 +26,12 @@ class Timestamp {
         }
     }
 
-    public static function fromArray($array) : Timestamp {
+    /**
+     * Generate a new timestamp object from data within an array
+     * @param $array
+     * @return Timestamp
+     */
+    public static function fromArray($array): Timestamp {
         $timestamp = new Timestamp($array['project'], $array['uuid']);
         if ($array['start'] != '') {
             $date = new DateTime();
@@ -41,7 +46,11 @@ class Timestamp {
         return $timestamp;
     }
 
-    public function toArray() : array {
+    /**
+     * Convert this object to an array
+     * @return array
+     */
+    public function toArray(): array {
         return array(
             'project' => $this->project != null ? $this->project : '',
             'start' => isset($this->start) != null ? $this->start->getTimestamp() : '',
@@ -51,6 +60,9 @@ class Timestamp {
         );
     }
 
+    /**
+     * Save this timestamp object to the data file
+     */
     private function save() {
         $content = file_get_contents("data.json");
         $data = json_decode($content, true);

@@ -24,11 +24,20 @@ class Person {
         }
     }
 
-    public static function fromArray($array) : Person {
+    /**
+     * Create a new Person object from a data array
+     * @param $array
+     * @return Person
+     */
+    public static function fromArray($array): Person {
         return new Person($array['firstname'], $array['lastname'], $array['uuid']);
     }
 
-    public function toArray() : array {
+    /**
+     * Save this Person object to the data file
+     * @return array
+     */
+    public function toArray(): array {
         return array(
             'firstname' => $this->firstname,
             'lastname' => $this->lastname,
@@ -53,7 +62,7 @@ class Person {
     /**
      * @return string First and last name combined in a single string
      */
-    public function getFullName() : string {
+    public function getFullName(): string {
         return $this->firstname . " " . $this->lastname;
     }
 
