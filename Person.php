@@ -12,7 +12,7 @@ class Person {
      * Person constructor.
      * @param $firstname
      * @param $lastname
-     * @param null $uuid
+     * @param null|string $uuid
      */
     public function __construct($firstname, $lastname, $uuid = null) {
         $this->firstname = $firstname;

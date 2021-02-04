@@ -15,10 +15,15 @@ class App {
     public array $timestamps;
     private array $ownTimestamps;
 
-    private static array $DEFAULT_DATA_STRUCTURE = array(
+    private const DEFAULT_DATA_STRUCTURE = array(
         "persons" => array(),
         "timestamps" => array()
     );
+    private const MENU_ITEMS = array(
+        "Make stamp",
+        "See current project"
+    );
+
 
     private Person $currentPerson;
 
@@ -65,17 +70,99 @@ class App {
         $openTimestamp = $this->getOpenTimestamp();
         print "\nWelcome, {$this->currentPerson->getFullName()}!";
         if ($openTimestamp == null) {
-            print "\nCurrently there's no uncompleted timestamp. Create one!";
+            print "\nCurrently there's no uncompleted project. Create one!";
         } else {
             print "\nYour last timestamp:\n{$openTimestamp->getStart()->format('d.m.Y G:i')}   {$openTimestamp->getProject()}";
         }
+        $exit = false;
+        do {
+            print "\n";
+            foreach (self::MENU_ITEMS as $key => $item) {
+                $id = $key + 1;
+                print "\n$id) $item";
+            }
+            print "\n";
+            $input = readline("Selection (1-" . sizeof(self::MENU_ITEMS) . "): ");
+            $this->doAction($input);
+        } while ($exit == false);
+    }
 
+    private function doAction($id) {
+        if (!is_numeric($id)) {
+            print "\nThis selection is not valid!";
+            return false;
+        }
+        switch ($id) {
+            case 1: // Make stamp
+                $openTimestamp = $this->getOpenTimestamp();
+                if ($openTimestamp != null) {
+                    // close existing timestamp
+                    print "\nYour last timestamp was:\n{$openTimestamp->getStart()->format('d.m.Y G:i')}   {$openTimestamp->getProject()}";
+                    $validInput = false;
+                    $date = null;
+                    do {
+                        print "\n";
+                        $input = readline("When do you want to end this timestamp (DD.MM.YYYY HH:MM)? (Leave blank for current time) ");
+                        if ($input == "") {
+                            $validInput = true;
+                            $date = new DateTime();
+                            $openTimestamp->setEnd($date);
+                        }
+                    } while ($validInput == false);
+                } else {
+                    print "\nCurrently there's no uncompleted project. Let's create one!";
+                    $validInput = false;
+                    $timestamp = null;
+                    do {
+                        print "\n";
+                        $input = readline("What is your activity/project called? ");
+                        if ($input != "") {
+                            $timestamp = new Timestamp($input);
+                            $validInput = true;
+                        }
+                    } while ($validInput == false);
+
+                    $validInput = false;
+                    do {
+                        print "\n";
+                        $input = readline("When do you want to start this timestamp (DD.MM.YYYY HH:MM)? (Leave blank for current time) ");
+                        if ($input == "") {
+                            $validInput = true;
+                            $date = new DateTime();
+                            $timestamp->setStart($date);
+                        } else {
+                            $date = DateTime::createFromFormat("d.m.Y H:i", $input);
+                            if ($date == false) {
+                                print "\nThis is not a valid date! (DD.MM.YYYY HH:MM)";
+                            } else {
+                                $timestamp->setStart($date);
+                                $validInput = true;
+                            }
+                        }
+                    } while ($validInput == false);
+                    $timestamp->setPerson($this->currentPerson);
+                    $this->timestamps[$timestamp->getUuid()] = $timestamp;
+                    $this->ownTimestamps[$timestamp->getUuid()] = $timestamp;
+                }
+                break;
+            case 2:
+                $timestamp = $this->getOpenTimestamp();
+                if ($timestamp == null) {
+                    print "\nCurrently there's no uncompleted project. Create one!";
+                } else {
+                    print "\nYour last timestamp was:\n{$timestamp->getStart()->format('d.m.Y G:i')}   {$timestamp->getProject()}";
+                }
+                break;
+            default:
+                print "\nThis selection is not valid!";
+                return false;
+        }
     }
 
     private function loadData() {
         $json = null;
-        if (false == ($json = @file_get_contents("data.json"))) {
-            file_put_contents("data.json", json_encode(self::$DEFAULT_DATA_STRUCTURE));
+        if (($json = @file_get_contents("data.json")) == false) {
+            file_put_contents("data.json", json_encode(self::DEFAULT_DATA_STRUCTURE));
         } else {
             $data = json_decode($json, true);
             if (!is_null($data) && isset($data['timestamps']) && isset($data['persons'])) {
@@ -98,12 +185,13 @@ class App {
         print "The data file is corrupt or not readable. Do you want to regenerate it? This will result in data loss! (y/n) ";
         $input = readline();
         if (strtoupper($input) == "Y") {
-            file_put_contents("data.json", json_encode(self::$DEFAULT_DATA_STRUCTURE));
+            file_put_contents("data.json", json_encode(self::DEFAULT_DATA_STRUCTURE));
             print "\nData file regenerated!";
             $this->loadData();
             return;
         }
-        print "\nTry repairing data.json by yourself, then restart. Exiting now.";
+        print "\nTry repairing data.json by yourself, then restart. Exiting now.\n";
+        readline("Press any key to terminate the application.");
         exit();
     }
 
