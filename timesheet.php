@@ -117,6 +117,7 @@ class App {
                             $validInput = true;
                             $date = new DateTime();
                             $openTimestamp->setEnd($date);
+                            print "\nTimestamp ended successfully!";
                         } elseif (strtoupper($input) == "C") {
                             print "\nAction cancelled.";
                             return null;
@@ -128,6 +129,7 @@ class App {
                                 if ($date->getTimestamp() > $openTimestamp->getStart()->getTimestamp()) {
                                     $openTimestamp->setEnd($date);
                                     $validInput = true;
+                                    print "\nTimestamp ended successfully!";
                                 } else {
                                     print "\nThe ending date has to be after the starting date!";
                                 }
@@ -175,6 +177,9 @@ class App {
                     $timestamp->setPerson($this->currentPerson);
                     $this->timestamps[$timestamp->getUuid()] = $timestamp;
                     $this->ownTimestamps[$timestamp->getUuid()] = $timestamp;
+                    print "\nNew timestamp for activity {$timestamp->getProject()} which started on "
+                        . $timestamp->getStart()->format("d.m.Y") . " at "
+                        . $timestamp->getStart()->format("H:i") . " was created!";
                 }
                 break;
             case 2:
@@ -187,27 +192,32 @@ class App {
                 break;
             case 3:
                 $validInput = false;
-                do {
-                    print "\n";
-                    $input = readline("How many timestamps would you like to see? ");
-                    if (is_numeric($input)) {
-                        $validInput = true;
-                        $timestamps = array_reverse($this->ownTimestamps);
-                        $count = 0;
-                        foreach ($timestamps as $timestamp) {
-                            if ($count < $input) {
-                                $end = $timestamp->getEnd() != null ? $timestamp->getEnd()->format('d.m.Y H:i') : '-               ';
-                                print "\n{$timestamp->getStart()->format('d.m.Y H:i')} until $end   {$timestamp->getProject()}";
-                                $count++;
-                            } else {
-                                break;
+                if (sizeof($this->ownTimestamps) != 0) {
+                    do {
+                        print "\n";
+                        $input = readline("How many timestamps would you like to see? ");
+                        if (is_numeric($input)) {
+                            $validInput = true;
+                            $timestamps = array_reverse($this->ownTimestamps);
+                            $count = 0;
+                            foreach ($timestamps as $timestamp) {
+                                if ($count < $input) {
+                                    $end = $timestamp->getEnd() != null ? $timestamp->getEnd()->format('d.m.Y H:i') : '-               ';
+                                    print "\n{$timestamp->getStart()->format('d.m.Y H:i')} until $end   {$timestamp->getProject()}";
+                                    $count++;
+                                } else {
+                                    break;
+                                }
                             }
+                        } elseif (strtoupper($input) == "C") {
+                            print "\nAction cancelled.";
+                            return null;
                         }
-                    } elseif (strtoupper($input) == "C") {
-                        print "\nAction cancelled.";
-                        return null;
-                    }
-                } while (!$validInput);
+                    } while (!$validInput);
+                } else {
+                    print "\nYou currently don't have any timestamps. Create one! ";
+                    readline();
+                }
                 break;
             default:
                 print "\nThis selection is not valid!";
