@@ -72,7 +72,7 @@ class App {
         $this->clear();
         $this->loadOwnTimestamps();
         $openTimestamp = $this->getOpenTimestamp();
-        print "\nWelcome, {$this->currentPerson->getFullName()}!";
+        print "\nWelcome, {$this->currentPerson->getFullName()}! You can cancel an action by typing C and Enter.";
         if ($openTimestamp == null) {
             print "\nCurrently there's no uncompleted project. Create one!";
         } else {
@@ -117,6 +117,21 @@ class App {
                             $validInput = true;
                             $date = new DateTime();
                             $openTimestamp->setEnd($date);
+                        } elseif (strtoupper($input) == "C") {
+                            print "\nAction cancelled.";
+                            return null;
+                        } else {
+                            $date = DateTime::createFromFormat("d.m.Y H:i", $input);
+                            if ($date == false) {
+                                print "\nThis is not a valid date! (DD.MM.YYYY HH:MM)";
+                            } else {
+                                if ($date->getTimestamp() > $openTimestamp->getStart()->getTimestamp()) {
+                                    $openTimestamp->setEnd($date);
+                                    $validInput = true;
+                                } else {
+                                    print "\nThe ending date has to be after the starting date!";
+                                }
+                            }
                         }
                     } while ($validInput == false);
                 } else {
@@ -126,7 +141,10 @@ class App {
                     do {
                         print "\n";
                         $input = readline("What is your activity/project called? ");
-                        if ($input != "") {
+                        if (strtoupper($input) == "C") {
+                            print "\nAction cancelled.";
+                            return null;
+                        } elseif ($input != "") {
                             $timestamp = new Timestamp($input);
                             $validInput = true;
                         }
@@ -140,6 +158,10 @@ class App {
                             $validInput = true;
                             $date = new DateTime();
                             $timestamp->setStart($date);
+                        } elseif (strtoupper($input) == "C") {
+                            print "\nAction cancelled.";
+                            unset($timestamp);
+                            return null;
                         } else {
                             $date = DateTime::createFromFormat("d.m.Y H:i", $input);
                             if ($date == false) {
@@ -181,6 +203,9 @@ class App {
                                 break;
                             }
                         }
+                    } elseif (strtoupper($input) == "C") {
+                        print "\nAction cancelled.";
+                        return null;
                     }
                 } while (!$validInput);
                 break;
@@ -276,10 +301,7 @@ class App {
             $clear = "clear";
         }
         popen($clear, "w");
-
     }
-
-
 }
 
 $app = new App();
