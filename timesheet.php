@@ -68,6 +68,7 @@ class App {
                 }
                 $validInput = true;
             }
+            $this->clear();
         } while (!$validInput);
         $this->clear();
         $this->loadOwnTimestamps();
